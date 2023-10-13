@@ -59,7 +59,7 @@ object PointAccountDatabaseExchanger {
 
     @JvmStatic
     fun updateCredit(account: Account) {
-        if (!accountExist(account.serverID, account.userID))
+        if (accountExist(account.serverID, account.userID))
             H2DatabaseManager.executeUpdate(
                 "UPDATE ACCOUNT SET accountBalance = ? WHERE serverID = ? AND userID = ?",
                 account.accountBalance,
@@ -100,6 +100,17 @@ object PointAccountDatabaseExchanger {
         val resultSet = H2DatabaseManager.executeSelect("SELECT serverID, roleID, payment from payment WHERE payment != 0")
         while (resultSet.next()) {
             result.add(RolePayment(resultSet.getLong(1), resultSet.getLong(2), resultSet.getLong(3)))
+        }
+        return result
+    }
+
+    @JvmStatic
+    fun leaderboard(serverID: Long, limit: Int): ArrayList<Account> {
+        val result = ArrayList<Account>()
+        val resultSet = H2DatabaseManager.executeSelect("SELECT TOP ? userID FROM ACCOUNT WHERE serverID = ? ORDER BY accountBalance DESC",
+            limit, serverID)
+        while (resultSet.next()) {
+            result.add(getAccount(serverID, resultSet.getLong(1)))
         }
         return result
     }

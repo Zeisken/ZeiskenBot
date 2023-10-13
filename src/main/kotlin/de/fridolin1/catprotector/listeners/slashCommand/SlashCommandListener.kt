@@ -1,5 +1,6 @@
 package de.fridolin1.catprotector.listeners.slashCommand
 
+import de.fridolin1.catprotector.listeners.programStopEvent.ProgramStopEventExecutor
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.permission.PermissionType
 import org.javacord.api.interaction.SlashCommand
@@ -8,7 +9,7 @@ import org.javacord.api.interaction.SlashCommandOption
 class SlashCommandListener {
     companion object {
         @JvmStatic
-        val executors = HashMap<String, SlashCommandExecutor>()
+        private val executors = HashMap<String, SlashCommandExecutor>()
 
         @JvmStatic
         fun init(api: DiscordApi) {

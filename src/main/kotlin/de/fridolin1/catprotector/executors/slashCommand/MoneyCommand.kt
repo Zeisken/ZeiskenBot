@@ -12,21 +12,28 @@ class MoneyCommand : SlashCommandExecutor {
     override fun execute(slashCommandInteraction: SlashCommandInteraction) {
         val serverID = slashCommandInteraction.server.get().id
         val fullCommand = slashCommandInteraction.fullCommandName.split(" ")
-        when(fullCommand[1]) {
+        when (fullCommand[1]) {
             "set" -> {
                 if (fullCommand[2] == "role") {
-                    val payment = slashCommandInteraction.arguments[0].longValue.get()
-                    val role = slashCommandInteraction.arguments[1].roleValue.get()
+                    val role = slashCommandInteraction.arguments[0].roleValue.get()
+                    val payment = slashCommandInteraction.arguments[1].longValue.get()
                     RolePayment.getRolePayment(serverID, role.id).payment = payment
-                    sendEphemeralResponse(slashCommandInteraction, "Successfully set the payment from the ${role.name} role to $payment ")
+                    sendEphemeralResponse(
+                        slashCommandInteraction,
+                        "Successfully set the payment from the ${role.name} role to $payment "
+                    )
                 } else if (fullCommand[2] == "user") {
-                    val money = slashCommandInteraction.arguments[0].longValue.get()
-                    val user = slashCommandInteraction.arguments[1].userValue.get()
+                    val user = slashCommandInteraction.arguments[0].userValue.get()
+                    val money = slashCommandInteraction.arguments[1].longValue.get()
                     Account.getAccount(serverID, user.id).accountBalance = money
-                    sendEphemeralResponse(slashCommandInteraction, "Successfully set the account balance from the ${user.name} role to $money")
+                    sendEphemeralResponse(
+                        slashCommandInteraction,
+                        "Successfully set the account balance from the ${user.name} role to $money"
+                    )
                 } else
                     sendEphemeralResponse(slashCommandInteraction, "Oh no, something went wrong")
             }
+
             "get" -> {
                 if (fullCommand[2] == "role") {
                     val role = slashCommandInteraction.arguments[0].roleValue.get()
@@ -35,22 +42,28 @@ class MoneyCommand : SlashCommandExecutor {
                 } else if (fullCommand[2] == "user") {
                     val user = slashCommandInteraction.arguments[0].userValue.get()
                     val accountBalance = Account.getAccount(serverID, user.id).accountBalance
-                    sendEphemeralResponse(slashCommandInteraction, "The account balance from ${user.name} is $accountBalance")
+                    sendEphemeralResponse(
+                        slashCommandInteraction,
+                        "The account balance from ${user.name} is $accountBalance"
+                    )
                 } else
                     sendEphemeralResponse(slashCommandInteraction, "Oh no, something went wrong")
             }
+
             "add" -> {
                 val money = slashCommandInteraction.arguments[0].longValue.get()
                 val user = slashCommandInteraction.arguments[1].userValue.get()
                 Account.getAccount(serverID, user.id).accountBalance += money
                 sendEphemeralResponse(slashCommandInteraction, "Successfully added $money to ${user.name}")
             }
+
             "remove" -> {
                 val money = slashCommandInteraction.arguments[0].longValue.get()
                 val user = slashCommandInteraction.arguments[1].userValue.get()
                 Account.getAccount(serverID, user.id).accountBalance -= money
                 sendEphemeralResponse(slashCommandInteraction, "Successfully removed $money to ${user.name}")
             }
+
             else -> {
                 sendEphemeralResponse(slashCommandInteraction, "Oh no, something went wrong")
             }
@@ -73,15 +86,15 @@ class MoneyCommand : SlashCommandExecutor {
                             SlashCommandOptionType.SUB_COMMAND, "role", "set the payment for a role",
                             listOf(
                                 SlashCommandOption.create(
-                                    SlashCommandOptionType.LONG,
-                                    "money",
-                                    "The amount of money that the members of the role get",
-                                    true
-                                ),
-                                SlashCommandOption.create(
                                     SlashCommandOptionType.ROLE,
                                     "role",
                                     "e.g. @Serverteam",
+                                    true
+                                ),
+                                SlashCommandOption.create(
+                                    SlashCommandOptionType.LONG,
+                                    "money",
+                                    "The amount of money that the members of the role get",
                                     true
                                 )
                             )
@@ -90,17 +103,17 @@ class MoneyCommand : SlashCommandExecutor {
                             SlashCommandOptionType.SUB_COMMAND, "user", "set the account balance for the user",
                             listOf(
                                 SlashCommandOption.create(
+                                    SlashCommandOptionType.USER,
+                                    "user",
+                                    "the user",
+                                    true
+                                ),
+                                SlashCommandOption.create(
                                     SlashCommandOptionType.LONG,
                                     "money",
                                     "the value with which the user's account balance is overwritten",
                                     true
                                 ),
-                                SlashCommandOption.create(
-                                    SlashCommandOptionType.USER,
-                                    "user",
-                                    "the user",
-                                    true
-                                )
                             )
                         )
                     )

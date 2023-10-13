@@ -4,12 +4,11 @@ import com.google.gson.Gson
 import de.fridolin1.catprotector.durable.Config
 import de.fridolin1.catprotector.durable.H2DatabaseManager
 import de.fridolin1.catprotector.durable.PointAccountDatabaseExchanger
+import de.fridolin1.catprotector.executors.programStopExecutor.SlashCommandDeleter
 import de.fridolin1.catprotector.executors.serverMemberJoinEvent.InternalJoinLogger
 import de.fridolin1.catprotector.executors.serverMemberJoinEvent.NicknameAtTheEntryGiver
-import de.fridolin1.catprotector.executors.slashCommand.Ping
-import de.fridolin1.catprotector.executors.slashCommand.Pong
-import de.fridolin1.catprotector.executors.slashCommand.MoneyCommand
-import de.fridolin1.catprotector.executors.slashCommand.BankCommand
+import de.fridolin1.catprotector.executors.slashCommand.*
+import de.fridolin1.catprotector.listeners.programStopEvent.ProgramStopEventListener
 import de.fridolin1.catprotector.listeners.serverMemberJoinEvent.ServerMemberJoinEventListener
 import de.fridolin1.catprotector.listeners.slashCommand.SlashCommandListener
 import de.fridolin1.catprotector.pointAccount.Account
@@ -25,6 +24,7 @@ import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters.next
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
 fun main() {
     //TODO delete payment/account when role/user/server gets deleted
@@ -55,6 +55,7 @@ fun main() {
         BankCommand(),
         BankCommand.getSlashCommandOptionList()
     )
+    SlashCommandListener.register("leaderboard", "Get the Leaderboard", api, LeaderBoardCommand(), PermissionType.ADMINISTRATOR)
     println("Successfully registered all slash commands")
 
     ServerMemberJoinEventListener.init(api)
@@ -62,7 +63,9 @@ fun main() {
     ServerMemberJoinEventListener.register(NicknameAtTheEntryGiver())
     println("Successfully registered all server member join event listener")
 
+    ProgramStopEventListener.register(SlashCommandDeleter())
     setupSchedule(api)
+    closer(api)
     println("Discord bot is Online")
 }
 
@@ -111,4 +114,15 @@ fun getConfig(): Config {
     val reader = BufferedReader(FileReader(file))
     val raw = reader.readLine()
     return Gson().fromJson(raw, Config::class.java)
+}
+
+fun closer(api: DiscordApi) {
+    Thread {
+        while (true) {
+            if (readlnOrNull() == "exit") {
+                ProgramStopEventListener.onProgramStop(api)
+                exitProcess(42)
+            }
+        }
+    }.start()
 }

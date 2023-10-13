@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 database.trace.db
 database.mv.db
+database.lock.db
 token.txt
 config.json
 gradle/
